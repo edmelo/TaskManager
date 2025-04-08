@@ -26,6 +26,33 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Run Bandit (Static Code Analysis)
+      run: |
+        pip install bandit
+        bandit -r todo_project -f html -o bandit-report.html
+
+    - name: Upload Bandit Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: bandit-report
+        path: bandit-report.html
+
+    - name: Install OWASP Dependency-Check
+      run: |
+        curl -L https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip -o dependency-check.zip
+        unzip dependency-check.zip -d dependency-check
+        chmod +x dependency-check/bin/dependency-check.sh
+
+    - name: Run Dependency-Check
+      run: |
+        dependency-check/bin/dependency-check.sh --project "TaskManager" --scan . --format HTML --out dependency-check-report.html
+
+    - name: Upload Dependency-Check Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: dependency-check-report
+        path: dependency-check-report.html
+
     - name: Run tests
       run: |
         cd todo_project
