@@ -26,6 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    # Etapa 1: Análise Estática de Código com Bandit
     - name: Run Bandit (Static Code Analysis)
       run: |
         pip install bandit
@@ -37,6 +38,7 @@ jobs:
         name: bandit-report
         path: bandit-report.html
 
+    # Etapa 2: Análise de Dependências com OWASP Dependency-Check
     - name: Install OWASP Dependency-Check
       run: |
         curl -L https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip -o dependency-check.zip
@@ -53,11 +55,13 @@ jobs:
         name: dependency-check-report
         path: dependency-check-report.html
 
+    # Etapa 3: Executar os testes
     - name: Run tests
       run: |
         cd todo_project
         python -m unittest discover -s tests
 
+    # Etapa 4: Executar a aplicação
     - name: Run application
       run: |
         cd todo_project
