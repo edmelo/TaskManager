@@ -71,3 +71,58 @@ jobs:
       run: |
         cd todo_project
         nohup python run.py &
+
+  review:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Deploy to temporary review environment
+      run: |
+        echo "Deploying to temporary review environment..."
+        # Comandos para criar e configurar o ambiente temporário
+        # Exemplo: docker-compose up -d ou comandos específicos do seu ambiente
+
+    - name: Notify reviewers
+      run: |
+        echo "Environment ready for review. Please access the temporary environment."
+
+  stage:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Deploy to stage environment
+      run: |
+        echo "Deploying to stage environment..."
+        # Comandos para criar e configurar o ambiente de stage
+        # Exemplo: docker-compose up -d ou comandos específicos do seu ambiente
+
+    - name: Run OWASP ZAP (DAST)
+      run: |
+        echo "Running OWASP ZAP for DAST..."
+        docker pull owasp/zap2docker-stable
+        docker run -u zap -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py -t http://stage-environment-url -r zap-report.html
+
+    - name: Upload OWASP ZAP Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: zap-report
+        path: zap-report.html
